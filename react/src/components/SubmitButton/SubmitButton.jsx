@@ -53,7 +53,7 @@ export const SubmitButton = (props) => {
       <Button 
         block={props.block}
         color={props.color} 
-        appearance="default"
+        appearance="primary"
         onClick={onButtonClicked}
         disabled={props.disabled===true?true:disabled} 
       >

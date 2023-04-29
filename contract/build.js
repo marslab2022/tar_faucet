@@ -2,7 +2,6 @@ const { build } = require('esbuild');
 const replace = require('replace-in-file');
 
 const contracts = [
-  '/thetAR/contract.ts',
   '/faucet/contract.ts'
 ];
 

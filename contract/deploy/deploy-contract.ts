@@ -11,7 +11,7 @@ LoggerFactory.INST.logLevel('error');
 
 (async () => {
   console.log('running...');
-  const tarTxId = 'jxB_n6cJo4s-a66oMIGACUjERJXQfc3IoIMV3_QK-1w';
+  const tarTxId = '-0pqJNz8YeOcffdf4DSiauthfWiGcOKzs61sI2-xF7E';
 
   const walletJwk = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'key-file.json'), 'utf8')
@@ -19,7 +19,7 @@ LoggerFactory.INST.logLevel('error');
   const walletAddress = await arweave.wallets.jwkToAddress(walletJwk);
   
   // deploy faucet contract
-  const faucetSrc = fs.readFileSync(path.join(__dirname, '../dist/faucet/contract.js'), 'utf8');
+  const faucetSrc = fs.readFileSync(path.join(__dirname, '../dist/contract.js'), 'utf8');
   const faucetInitFromFile = JSON.parse(
     fs.readFileSync(path.join(__dirname, '../dist/faucet/initial-state.json'), 'utf8')
   );
@@ -27,7 +27,6 @@ LoggerFactory.INST.logLevel('error');
     ...faucetInitFromFile,
     owner: walletAddress,
     tokenAddress: tarTxId,
-    price: 0.0000001
   };
   const faucetContractTxId = (await warp.createContract.deploy({
     wallet: walletJwk,

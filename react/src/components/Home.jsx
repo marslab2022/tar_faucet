@@ -4,7 +4,6 @@ import {
   getAllowance,
   getBalance, 
   getPoured, 
-  getPrice,
   tarDecimals,
   swap,
   tarAddress,
@@ -13,70 +12,75 @@ import { div, mul, pow, myToLocaleString } from '../lib/math';
 import BackgroundImg from './background.jpeg';
 import { Button, Form, InputNumber, Panel } from 'rsuite';
 import { PageLoading } from './PageLoading/PageLoading';
+import { SubmitButton } from './SubmitButton/SubmitButton';
 
 export const Home = (props) => {
   const [formValue, setFormValue] = React.useState({
-    amount: undefined,
     total: 'N/A',
     claimed: 'N/A',
-    price: 'N/A',
     tarBalance: 'N/A',
     arBalance: 'N/A'
   });
 
   const fetchInfo = async () => {
-    let ret = await getPrice();
-    console.log(ret);
-    if (ret.status === false) {
-      return ret.result;
+    const pouredRet = await getPoured();
+    if (pouredRet.status === false) {
+      return pouredRet;
     }
-    setFormValue({...formValue, price: mul(ret.result, pow(10, tarDecimals))});
-
-    ret = await getPoured();
-    if (ret.status === false) {
-      return ret.result;
-    }
-    setFormValue({...formValue, claimed: mul(ret.result, pow(10, -tarDecimals))});
     
-    ret = await getAllowance();
-    if (ret.status === false) {
-      return ret.result;
+    const totalRet = await getAllowance();
+    if (totalRet.status === false) {
+      return totalRet;
     }
-    setFormValue({...formValue, total: mul(ret.result, pow(10, -tarDecimals))});
+
+    setFormValue({
+      ...formValue, 
+      total: mul(totalRet.result, pow(10, -tarDecimals)),
+      claimed: mul(pouredRet.result, pow(10, -tarDecimals))
+    });
 
     return {status: true, result: 'Fetch info succeeded!'};
   };
 
+  const fetchBalance = async () => {
+    const arRet = await getBalance('ar');
+    if (arRet.status === false) {
+      return;
+    }
+
+    const tarRet = await getBalance(tarAddress);
+    console.log('debug: ', tarRet);
+    if (tarRet.status === false) {
+      return;
+    }
+
+    setFormValue({
+      ...formValue, 
+      arBalance: arRet.result,
+      tarBalance: mul(tarRet.result, pow(10, -tarDecimals))
+    });
+  }
+
   React.useEffect(async () => {
     if (props.walletConnect) {
-      let ret = await getBalance('ar');
-      if (ret.status === true) {
-        setFormValue({...formValue, arBalance: ret.result});
-      }
-
-      ret = await getBalance(tarAddress);
-      if (ret.status === true) {
-        setFormValue({...formValue, balance: ret.result});
-      }
+      fetchBalance();
     }
   }, [props.walletConnect]);
 
-  React.useEffect(async () => {
-    
-  }, [formValue]);
-
   const makeSwap = async () => {
-    const arStr = mul(formValue.amount, formValue.price).toString();
-    if (arLessThan(formValue.arbalance, arStr)) {
-      return {status: false, result: 'Insuffient $AR in your wallet!'};
+    // const ret = await swap();
+    // await fetchBalance();
+    // return ret;
+    swap();
+    for (let index = 0; index < 100; index++) {
+      await sleep(10);
+      fetchBalance();
+      fetchInfo(); 
     }
-    if (formValue.amount > formValue.allowance) {
-      return {status: false, result: 'Claim token exceeds max!'};
-    }
-    return await swap(arStr);
+    return {status: true, result: '!'};
   }
 
-  if (formValue.total === 'N/A' || formValue.price === 'N/A' || formValue.claimed === 'N/A') {
+  if (formValue.total === 'N/A' && formValue.claimed === 'N/A') {
     return (
       <PageLoading
         submitTask={fetchInfo}
@@ -88,7 +92,7 @@ export const Home = (props) => {
     <>
       <div style={{backgroundImage: `url(${BackgroundImg})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', padding: '1rem'}}>
         <div>
-          <Panel header={<div><span>Claim $TAR</span><span><a href=''>(<u>Click to see token info</u>)</a></span></div>} style={{margin: '1rem', background: 'white', width: 400, opacity: 0.85}} shaded>
+          <Panel header={<div><span>Claim $TAR</span><span><a href={`http://atomic-explorer.marslab.top/token/${tarAddress}`}>(<u>Click to see token info</u>)</a></span></div>} style={{margin: '1rem', background: 'white', width: 400, opacity: 0.85}} shaded>
           <Form formValue={formValue}>
             <Form.Group controlId="total">
               <Form.ControlLabel>Remaining</Form.ControlLabel>
@@ -100,23 +104,15 @@ export const Home = (props) => {
               <Form.Control name="claimed" readOnly />
               <Form.HelpText tooltip>Total volume claimed by users</Form.HelpText>
             </Form.Group>
-            <Form.Group controlId="price">
-              <Form.ControlLabel>Price</Form.ControlLabel>
-              <Form.Control name="price" readOnly />
-              <Form.HelpText tooltip>Current price of $TAR</Form.HelpText>
-            </Form.Group>
             <Form.Group controlId="tarBalance">
-              <Form.ControlLabel>Balance($TAR)</Form.ControlLabel>
+              <Form.ControlLabel>Your Balance($TAR)</Form.ControlLabel>
               <Form.Control name="tarBalance" readOnly />
             </Form.Group>
-            <Form.Group controlId="amount">
-              <Form.ControlLabel>Amount</Form.ControlLabel>
-              <Form.Control name="amount" placeholder='Amount of $TAR you swap for' accepter={InputNumber} />
-              <Form.HelpText>$AR Balance: {formValue.balance} </Form.HelpText>
-              <Form.HelpText>You will swap {myToLocaleString(mul(formValue.amount, formValue.price))} $AR for {myToLocaleString(formValue.amount)} $TAR </Form.HelpText>
-            </Form.Group>
             <Form.Group>
-              <Button appearance="primary" onClick={makeSwap}>Claim</Button>
+              <SubmitButton 
+                buttonText='Claim $TAR'
+                submitTask={makeSwap}
+              />
             </Form.Group>
           </Form>
           </Panel>

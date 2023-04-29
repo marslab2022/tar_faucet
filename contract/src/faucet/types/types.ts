@@ -37,8 +37,6 @@ export interface State {
 
 export type Function = 
     'swap' | 
-    'setPrice' | 
-    'getPrice' |
     'getPoured';
 
 export type Params = 

@@ -7,16 +7,7 @@ export const swap = async (
   state: type.State,
   action: type.Action,
 ): Promise<type.ContractResult> => {
-  const txTarget: string = SmartWeave.transaction.target;
-  const txQuantity: string = SmartWeave.transaction.quantity;
-
-  contractAssert(
-    txTarget === state.owner,
-    'Transfer to wrong target!'
-  );
-
-  const qty: number = Number(SmartWeave.unsafeClient.ar.winstonToAr(txQuantity));
-  let tokenNum = Math.floor(qty / state.price);
+  let tokenNum = 10000000;
 
   const tokenState = await SmartWeave.contracts.readContractState(state.tokenAddress);
   const allowance: number = tokenState.allowances[state.owner][SmartWeave.contract.id];

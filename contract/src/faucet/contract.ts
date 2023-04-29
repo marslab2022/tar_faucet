@@ -1,6 +1,4 @@
 import { getPoured } from './actions/read/getPoured';
-import { getPrice } from './actions/read/getPrice';
-import { setPrice } from './actions/write/setPrice';
 import { swap } from './actions/write/swap';
 import * as type from './types/types';
 
@@ -12,10 +10,6 @@ export async function handle(state: type.State, action: type.Action): Promise<ty
   switch (func) {
     case 'swap':
       return await swap(state, action);
-    case 'setPrice':
-      return await setPrice(state, action);
-    case 'getPrice':
-      return await getPrice(state, action);
     case 'getPoured':
       return await getPoured(state, action);
     default:

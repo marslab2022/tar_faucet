@@ -7,7 +7,6 @@ import {
 import 'rsuite/dist/rsuite.css';
 import './App.css';
 import { Home } from './components/Home';
-import { sleep } from 'warp-contracts';
 
 const App = () => {
   const [isContractConnected, setIsContractConnected] = React.useState(false);
@@ -15,7 +14,6 @@ const App = () => {
 
   React.useEffect(async ()=>{
     await connectContract();
-    await sleep(3000);
     setIsContractConnected(true);
   }, []);
 
@@ -32,7 +30,7 @@ const App = () => {
         <Navigation setIsWalletConnected={setIsWalletConnected}/>
         <main>
           <Routes>
-            <Route path="/" name="" element={<HomeFrame />} />
+            <Route path="/" name="" element={<HomeFrame walletConnect={isWalletConnected} />} />
           </Routes>
         </main>
       </div>
@@ -43,7 +41,7 @@ const App = () => {
 const HomeFrame = (props) => {
   return (
     <>
-      <Home />
+      <Home walletConnect={props.walletConnect}/>
     </>
   );
 };

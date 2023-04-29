@@ -26,18 +26,6 @@ export const Navigation = (props) => {
             <Link to="/" className='menuText'>
               <Nav.Item icon={<HomeIcon />}>Home</Nav.Item>
             </Link>
-            <Link to="/addPair" className='menuText'>
-              <Nav.Item icon={<AddIcon />}>Add Pair</Nav.Item>
-            </Link>
-            <Link to="/faucet" className='menuText'>
-              <Nav.Item icon={<MoneyIcon />}>Faucet</Nav.Item>
-            </Link>
-            <Link to="/my" className='menuText'>
-              <Nav.Item icon={<MyIcon />}>My</Nav.Item>
-            </Link>
-            <Link to="/about" className='menuText'>
-              <Nav.Item icon={<AboutIcon />}>About</Nav.Item>
-            </Link>
             <Nav.Menu icon={<ContactIcon />} title="Contact" className='menuText'>
               <a href='https://twitter.com/mARsLab_2022' className='menuText'>
                 <Nav.Item icon={<TwitterIcon />}>Twitter</Nav.Item>
